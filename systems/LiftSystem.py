@@ -1,7 +1,7 @@
 from pybricks.parameters import Port
 
-from SimpleMotor import SimpleMotor
-from System import System
+from systems.System import System
+from devices.SimpleMotor import SimpleMotor
 
 
 class LiftSystem(System):
