@@ -10,11 +10,11 @@ class SimpleMotor:
         self.position = 0
         print("Motor {} initialized on port {}".format(self.name, port))
 
-    def move(self, angle, speed=500):
+    def move(self, angle, speed=500, wait: bool = True):
         self.position += angle
 
         # We are adding 3% to the angle to account for the motor not moving the exact number of degrees
-        self.motor.run_angle(speed, angle, then=Stop.COAST)
+        self.motor.run_angle(speed, angle, then=Stop.COAST, wait=wait)
         self.motor.reset_angle(0)
         self.motor.hold()
         print("Motor {} moved {} degrees".format(self.name, angle))
