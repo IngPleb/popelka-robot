@@ -1,5 +1,6 @@
 from pybricks.ev3devices import Motor
 from pybricks.parameters import Port as Port, Stop
+import _thread
 
 
 class SimpleMotor:
@@ -33,7 +34,10 @@ class SimpleMotor:
         print("Motor {} returned to zero".format(self.name))
         self.position = 0
         
-    def run_continuously(self, speed = 500):
-        while True:
-            self.motor.run(speed)
-            print("Motor {} running continuously".format(self.name))
+    def run_continuously(self, speed=500):
+        def run_motor():
+            while True:
+                self.motor.run(speed)
+                #print("Motor {} running continuously".format(self.name))
+
+        _thread.start_new_thread(run_motor, ())

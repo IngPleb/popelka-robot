@@ -17,4 +17,4 @@ class LiftSystem(System):
         self.simple_motor.return_to_zero()
         
     def run_continuously(self):
-        self.simple_motor.run_continuously(speed=-700)
+        self.simple_motor.run_continuously(speed=-1000)

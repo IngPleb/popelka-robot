@@ -1,3 +1,10 @@
+BALL_COLOR_THRESHOLD = 52
+
+
+def is_ball(r, g, b):
+    return r + g + b > BALL_COLOR_THRESHOLD
+
+
 class LightCorrectionSystem:
     def __init__(self, sensor_port, blue_threshold_on_line, blue_threshold_off_line, history_length=5):
         from pybricks.ev3devices import ColorSensor
@@ -11,6 +18,10 @@ class LightCorrectionSystem:
 
     def get_correction(self):
         r, g, b = self.color_sensor.rgb()
+
+        if is_ball(r, g, b):
+            print("Ball detected")
+            return 0
 
         # Dead zone logic
         if self.BLUE_THRESHOLD_ON_LINE - self.DEAD_ZONE <= b <= self.BLUE_THRESHOLD_ON_LINE + self.DEAD_ZONE:
