@@ -10,7 +10,7 @@ from systems.DriveSystem import DriveSystem
 LIFT_MOTOR_PORT = Port.B
 LEFT_MOTOR_PORT = Port.A
 RIGHT_MOTOR_PORT = Port.D
-COLOR_SENSOR_PORT = Port.S4
+COLOR_SENSOR_PORT = Port.S1
 
 # Initialize the EV3 Brick
 ev3 = EV3Brick()

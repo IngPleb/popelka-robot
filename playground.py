@@ -1,28 +1,31 @@
 #!/usr/bin/env pybricks-micropython
 
-from pybricks.hubs import EV3Brick
 from pybricks.parameters import Port
 
-from systems.LiftSystem import LiftSystem
-
-# Initialize the EV3 Brick.
-
-ev3 = EV3Brick()
-
-# Define ports
-###############
-
-# Motors
-RIGHT_MOTOR_PORT = Port.A
-LEFT_MOTOR_PORT = Port.B
-
-# Sensors
-COLOR_SENSOR_PORT = Port.S1
+from systems.DriveSystem import DrivingSystem
+from systems.LightCorrectionSystem import LightCorrectionSystem
 
 
 def main():
-    lift_system = LiftSystem(port=Port.D)
-    lift_system.run_continuously()
+    # Initialize the LightCorrectionSystem
+    light_correction_system = LightCorrectionSystem(
+        sensor_port=Port.S1,
+        blue_threshold_on_line=7,
+        blue_threshold_off_line=8,
+        history_length=5
+    )
+
+    # Initialize the DrivingSystem with the LightCorrectionSystem
+    driving_system = DrivingSystem(
+        left_motor_port=Port.A,
+        right_motor_port=Port.D,
+        base_speed=400,  # Base speed for motors
+        correction_factor=30,  # Sensitivity to corrections
+        light_correction_system=light_correction_system
+    )
+
+    # Start the driving system
+    driving_system.drive()
 
 
 if __name__ == "__main__":
