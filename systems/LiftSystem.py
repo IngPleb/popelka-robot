@@ -5,7 +5,7 @@ from devices.SimpleMotor import SimpleMotor
 
 
 class LiftSystem(System):
-    GRAB_ANGLE = -1670
+    GRAB_ANGLE = -1008
 
     def __init__(self, port: Port):
         super().__init__("Lift System")
@@ -15,6 +15,9 @@ class LiftSystem(System):
         self.simple_motor.move(LiftSystem.GRAB_ANGLE, speed=700)
         self.system_print("Grabbing a ball")
         self.simple_motor.return_to_zero()
+
+    def grab_without_return(self):
+        self.simple_motor.move(LiftSystem.GRAB_ANGLE, speed=700)
         
     def run_continuously(self):
         self.simple_motor.run_continuously(speed=-1000)

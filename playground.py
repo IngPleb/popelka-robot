@@ -5,12 +5,16 @@ from pybricks.parameters import Port
 from systems.DriveSystem import DrivingSystem
 from systems.LiftSystem import LiftSystem
 from systems.LightCorrectionSystem import LightCorrectionSystem
+from pybricks.ev3devices import ColorSensor
+
 
 
 def main():
     lift = LiftSystem(port=Port.D)
 
     lift.run_continuously()
+    lift.grab_without_return()
+    
 
     # Initialize the LightCorrectionSystem
     light_correction_system = LightCorrectionSystem(
