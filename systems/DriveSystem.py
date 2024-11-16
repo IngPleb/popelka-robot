@@ -2,9 +2,7 @@
 
 import time
 from time import sleep
-
 from pybricks.parameters import Port
-
 from devices.SimpleMotor import SimpleMotor
 from systems.LightCorrectionSystem import LightCorrectionSystem, CorrectionAction
 from systems.System import System
@@ -18,49 +16,43 @@ class DriveSystem(System):
         self.correction_system = LightCorrectionSystem(color_sensor_port)
 
     def drive_forward_corrected_time(self, seconds: float, base_speed=200):
-        """Drive forward with correction for specified time"""
+        """
+        Drive forward with correction for a specified time.
+        """
         start_time = time.time()
-        correction_factor = 0.3  # Adjust this value between 0 and 1 for correction intensity
-
-        # Start motors
-        self.left_motor.motor.run(base_speed)
-        self.right_motor.motor.run(base_speed)
+        correction_factor = 0.3  # Intensity of the correction
 
         try:
             while time.time() - start_time < seconds:
+                # Get correction action and magnitude
                 action, magnitude = self.correction_system.process_input()
 
-                left_speed = right_speed = base_speed
+                # Start with base speeds
+                left_speed = base_speed
+                right_speed = base_speed
 
+                # Adjust speeds based on correction
                 if action == CorrectionAction.MOVE_LEFT:
-                    # To move left, reduce speed of the left motor
-                    left_speed = base_speed * (1 - correction_factor * (magnitude / 100))
-                elif action == CorrectionAction.MOVE_RIGHT:
-                    # To move right, reduce speed of the right motor
+                    # Reduce right motor speed to turn left
                     right_speed = base_speed * (1 - correction_factor * (magnitude / 100))
-                # If action is NONE, both motors run at base_speed
+                elif action == CorrectionAction.MOVE_RIGHT:
+                    # Reduce left motor speed to turn right
+                    left_speed = base_speed * (1 - correction_factor * (magnitude / 100))
 
-                # Apply new speeds
+                # Apply speeds to motors
                 self.left_motor.motor.run(left_speed)
                 self.right_motor.motor.run(right_speed)
 
-                # Logging for debugging
-                print("Action: {}, Magnitude: {}, Left Speed: {}, Right Speed: {}".format(action, magnitude, left_speed,
-                                                                                          right_speed))
+                # Debugging logs
+                print(
+                    "Action: {}, Magnitude: {}, Left Speed: {}, Right Speed: {}".format(
+                        action, magnitude, left_speed, right_speed
+                    )
+                )
 
-                sleep(0.01)  # Short delay for responsiveness
+                # Short delay to prevent overwhelming the system
+                sleep(0.01)
         finally:
-            # Ensure motors stop after completion
+            # Stop motors after completing the movement
             self.left_motor.motor.stop()
             self.right_motor.motor.stop()
-
-    def rotate(self, angle: int, speed=300):
-        """Rotate in place by given angle"""
-        if angle > 0:
-            # Rotate right
-            self.left_motor.move(angle, speed=speed, wait=False)
-            self.right_motor.move(-angle, speed=speed)
-        else:
-            # Rotate left
-            self.left_motor.move(-angle, speed=speed, wait=False)
-            self.right_motor.move(angle, speed=speed)

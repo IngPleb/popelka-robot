@@ -3,46 +3,53 @@
 from pybricks.ev3devices import ColorSensor
 from pybricks.parameters import Port
 
-# Replace enum with class constants
+
 class CorrectionAction:
+    NONE = 0
     MOVE_LEFT = 1
     MOVE_RIGHT = 2
-    NONE = 0
+
 
 class LightCorrectionSystem:
     def __init__(self, sensor_port: Port, reference_value=20, tolerance=5):
-        """
-        Initialize the correction system with a sensor, reference value, and tolerance.
-
-        :param sensor_port: The port where the color sensor is connected.
-        :param reference_value: Target light value (e.g., expected reflection level for the line).
-        :param tolerance: Acceptable error range before action is needed.
-        """
         self.sensor = ColorSensor(sensor_port)
         self.reference_value = reference_value
         self.tolerance = tolerance
-        self.sensor_value = 0  # To store the latest sensor reading
+        self.previous_error = 0
+        self.last_action = CorrectionAction.NONE
 
     def process_input(self):
         """
-        Read the sensor value, process it, and return a correction action and magnitude.
-
-        :return: A tuple of (CorrectionAction, magnitude).
+        Process the light sensor input and determine corrective actions.
         """
-        self.sensor_value = self.sensor.reflection()  # Get the reflection value
+        # Get the current reflection value
+        current_value = self.sensor.reflection()
+        error = current_value - self.reference_value
 
-        error = self.sensor_value - self.reference_value
-
+        # If the error is within tolerance, no correction is needed
         if abs(error) <= self.tolerance:
+            self.previous_error = error
+            self.last_action = CorrectionAction.NONE
             return CorrectionAction.NONE, 0
 
-        magnitude = min(abs(error), 100)  # Ensure magnitude doesn't exceed 100
+        # Determine the magnitude of correction
+        magnitude = min(abs(error), 100)
 
-        if error > 0:
-            # Sensor value is higher than the reference, meaning it's on lighter surface
-            # Robot needs to move left to get back to the line
-            return CorrectionAction.MOVE_LEFT, magnitude
-        else:
-            # Sensor value is lower than the reference, meaning it's on darker surface
-            # Robot needs to move right to get back to the line
+        # If the last action made things worse, reverse the correction
+        if self.last_action == CorrectionAction.MOVE_LEFT and error > self.previous_error:
+            self.last_action = CorrectionAction.MOVE_RIGHT
+            self.previous_error = error
             return CorrectionAction.MOVE_RIGHT, magnitude
+        elif self.last_action == CorrectionAction.MOVE_RIGHT and error < self.previous_error:
+            self.last_action = CorrectionAction.MOVE_LEFT
+            self.previous_error = error
+            return CorrectionAction.MOVE_LEFT, magnitude
+
+        # Otherwise, decide direction based on the error
+        if error > 0:
+            self.last_action = CorrectionAction.MOVE_LEFT
+        else:
+            self.last_action = CorrectionAction.MOVE_RIGHT
+
+        self.previous_error = error
+        return self.last_action, magnitude

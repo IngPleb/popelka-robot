@@ -32,3 +32,8 @@ class SimpleMotor:
         self.move(-self.position, speed=900)
         print("Motor {} returned to zero".format(self.name))
         self.position = 0
+        
+    def run_continuously(self, speed = 500):
+        while True:
+            self.motor.run(speed)
+            print("Motor {} running continuously".format(self.name))

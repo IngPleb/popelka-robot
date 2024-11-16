@@ -3,7 +3,7 @@
 from pybricks.hubs import EV3Brick
 from pybricks.parameters import Port
 
-from systems.DriveSystem import DriveSystem
+from systems.LiftSystem import LiftSystem
 
 # Initialize the EV3 Brick.
 
@@ -21,9 +21,8 @@ COLOR_SENSOR_PORT = Port.S1
 
 
 def main():
-    drive_system = DriveSystem(RIGHT_MOTOR_PORT, LEFT_MOTOR_PORT, COLOR_SENSOR_PORT)
-
-    drive_system.drive_forward_corrected()
+    lift_system = LiftSystem(port=Port.D)
+    lift_system.run_continuously()
 
 
 if __name__ == "__main__":
