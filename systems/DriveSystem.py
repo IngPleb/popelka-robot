@@ -1,5 +1,4 @@
 from pybricks.ev3devices import Motor
-from pybricks.tools import wait
 
 
 class DrivingSystem:
@@ -12,16 +11,13 @@ class DrivingSystem:
 
     def drive(self):
         while True:
-            # Get correction from the LightCorrectionSystem
+            blue_value = self.light_correction_system.color_sensor.rgb()[2]  # Get blue value
             correction = self.light_correction_system.get_correction()
+            smoothed_correction = self.light_correction_system.get_smoothed_correction(correction)
+            adjusted_correction = self.light_correction_system.adjust_correction(smoothed_correction, blue_value)
 
-            # Adjust motor speeds based on correction
-            left_speed = self.base_speed - (correction * self.correction_factor)
-            right_speed = self.base_speed + (correction * self.correction_factor)
+            left_speed = self.base_speed - (adjusted_correction * self.correction_factor)
+            right_speed = self.base_speed + (adjusted_correction * self.correction_factor)
 
-            # Run motors with adjusted speeds
             self.left_motor.run(left_speed)
             self.right_motor.run(right_speed)
-
-            # Add a small delay for control loop stability
-            wait(10)

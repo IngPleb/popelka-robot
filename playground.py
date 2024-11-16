@@ -19,7 +19,7 @@ def main():
     driving_system = DrivingSystem(
         left_motor_port=Port.A,
         right_motor_port=Port.D,
-        base_speed=400,  # Base speed for motors
+        base_speed=300,  # Base speed for motors
         correction_factor=30,  # Sensitivity to corrections
         light_correction_system=light_correction_system
     )
