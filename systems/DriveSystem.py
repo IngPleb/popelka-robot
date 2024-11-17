@@ -1,3 +1,4 @@
+import _thread
 import time
 
 from pybricks.parameters import Port
@@ -31,6 +32,7 @@ class DriveSystem:
 
         wheel_circumference = 3.1416 * self.wheel_diameter_mm
         target_angle = (distance_mm / wheel_circumference) * 360.0  # degrees
+        print("Target angle: " + str(target_angle))
 
         # Start moving
         while True:
@@ -39,8 +41,12 @@ class DriveSystem:
             right_angle = self.right_motor.motor.angle()
             average_angle = (left_angle + right_angle) / 2.0
 
+            print("Left angle: " + str(left_angle) + ", Right angle: " + str(right_angle) + ", Average angle: " + str(
+                average_angle))
+
             if average_angle >= target_angle:
                 # Target distance reached
+                print("Target angle reached.")
                 break
 
             # Get correction from LightSystem
@@ -60,12 +66,9 @@ class DriveSystem:
 
             # Check for ball detection
             if self.light_system.is_ball_detected():
-                # For now, pass
-                print("Ball detected, but not really implemented yet.")
-                # TODO: Decide if use self.lift_system.grab() or self.lift_system.grab_without_return()
-                # TODO: Implement on different thread
-                self.lift_system.grab_without_return()
-                pass
+                time.sleep(0.3)
+                print("Ball detected, initiating grab sequence.")
+                _thread.start_new_thread(self.lift_system.grab_without_return, ())
 
             # Small delay to prevent tight loop
             time.sleep(0.01)  # wait 10 ms
@@ -84,8 +87,14 @@ class DriveSystem:
         rotation_angle = (distance_mm / wheel_circumference) * 360.0  # degrees
 
         # Move both motors forward by rotation_angle
-        self.left_motor.move_to_angle(rotation_angle, speed, wait=False)
-        self.right_motor.move_to_angle(rotation_angle, speed)
+        while True:
+            self.left_motor.move_to_angle(rotation_angle, speed, wait=False)
+            self.right_motor.move_to_angle(rotation_angle, speed, wait=False)
+
+            average_angle = (self.left_motor.motor.angle() + self.right_motor.motor.angle()) / 2.0
+
+            if average_angle >= rotation_angle:
+                break
 
         print("move_distance_without_correction completed.")
 

@@ -1,0 +1,246 @@
+Index: tests/test_drive.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#!/usr/bin/env pybricks-micropython\n\nimport os\nimport sys\n\n# Add the parent directory to the sys.path\nsys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))\n\nfrom pybricks.parameters import Port\nfrom systems.LiftSystem import LiftSystem\n\nlift_port = Port.D\n\n\ndef main():\n    lift = LiftSystem(lift_port)\n\n    lift.run_continuously()\n\n    while True:\n        pass\n\n\nif __name__ == \"__main__\":\n    main()\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/tests/test_drive.py b/tests/test_drive.py
+--- a/tests/test_drive.py	(revision 6c2cd4c1f45c1302fb25471f73b3265768a24e12)
++++ b/tests/test_drive.py	(date 1731834140323)
+@@ -1,24 +1,27 @@
+ #!/usr/bin/env pybricks-micropython
+-
+-import os
+-import sys
+-
+ # Add the parent directory to the sys.path
++import sys
++import os
+ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+ 
++
++
+ from pybricks.parameters import Port
+ from systems.LiftSystem import LiftSystem
+ 
++from systems.DriveSystem import DriveSystem
++from systems.LightSystem import LightSystem
++
+ lift_port = Port.D
+ 
+ 
+ def main():
+-    lift = LiftSystem(lift_port)
+-
+-    lift.run_continuously()
+-
+-    while True:
+-        pass
++    light_system = LightSystem(Port.S1, blue_threshold_on_line=7)
++    drive_system = DriveSystem(left_motor_port=Port.A, right_motor_port=Port.C, wheel_diameter_mm=68.8,
++                               axle_track_mm=92.5,
++                               base_speed=300, correction_factor=2, light_system=light_system,
++                               lift_system=LiftSystem(lift_port))
++    drive_system.move_distance(15000)
+ 
+ 
+ if __name__ == "__main__":
+Index: systems/DriveSystem.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import time\n\nfrom pybricks.parameters import Port\n\nfrom devices.SimpleMotor import SimpleMotor\nfrom systems.LiftSystem import LiftSystem\nfrom systems.LightSystem import LightSystem\n\n\nclass DriveSystem:\n    def __init__(self, left_motor_port: Port, right_motor_port: Port, wheel_diameter_mm, axle_track_mm, base_speed,\n                 correction_factor, light_system: LightSystem, lift_system: LiftSystem):\n        # Initialize motors\n        self.left_motor = SimpleMotor('left', left_motor_port)\n        self.right_motor = SimpleMotor('right', right_motor_port)\n\n        # Constants\n        self.wheel_diameter_mm = wheel_diameter_mm\n        self.axle_track_mm = axle_track_mm\n        self.base_speed = base_speed\n        self.correction_factor = correction_factor\n        self.light_system = light_system\n        self.lift_system = lift_system\n\n    def move_distance(self, distance_mm):\n        print(\"Starting move_distance of \" + str(distance_mm) + \" mm\")\n\n        # Reset motor angles\n        self.left_motor.motor.reset_angle(0)\n        self.right_motor.motor.reset_angle(0)\n\n        wheel_circumference = 3.1416 * self.wheel_diameter_mm\n        target_angle = (distance_mm / wheel_circumference) * 360.0  # degrees\n\n        # Start moving\n        while True:\n            # Get the average of the two motor angles\n            left_angle = self.left_motor.motor.angle()\n            right_angle = self.right_motor.motor.angle()\n            average_angle = (left_angle + right_angle) / 2.0\n\n            if average_angle >= target_angle:\n                # Target distance reached\n                break\n\n            # Get correction from LightSystem\n            correction = self.light_system.get_correction()\n            # Adjust motor speeds\n            left_speed = self.base_speed - (correction * self.correction_factor)\n            right_speed = self.base_speed + (correction * self.correction_factor)\n\n            # Set motor speeds\n            self.left_motor.run(left_speed)\n            self.right_motor.run(right_speed)\n\n            # Debug statements\n            print(\"Left angle: \" + str(left_angle) + \", Right angle: \" + str(right_angle) + \", Correction: \" + str(\n                correction))\n            print(\"Left speed: \" + str(left_speed) + \", Right speed: \" + str(right_speed))\n\n            # Check for ball detection\n            if self.light_system.is_ball_detected():\n                # For now, pass\n                print(\"Ball detected, but not really implemented yet.\")\n                # TODO: Decide if use self.lift_system.grab() or self.lift_system.grab_without_return()\n                # TODO: Implement on different thread\n                self.lift_system.grab_without_return()\n                pass\n\n            # Small delay to prevent tight loop\n            time.sleep(0.01)  # wait 10 ms\n\n        # Stop motors\n        self.left_motor.stop()\n        self.right_motor.stop()\n        print(\"move_distance completed.\")\n\n    def move_distance_without_correction(self, distance_mm, speed=None):\n        if speed is None:\n            speed = self.base_speed\n        print(\"Starting move_distance_without_correction of \" + str(distance_mm) + \" mm\")\n\n        wheel_circumference = 3.1416 * self.wheel_diameter_mm\n        rotation_angle = (distance_mm / wheel_circumference) * 360.0  # degrees\n\n        # Move both motors forward by rotation_angle\n        self.left_motor.move_to_angle(rotation_angle, speed, wait=False)\n        self.right_motor.move_to_angle(rotation_angle, speed)\n\n        print(\"move_distance_without_correction completed.\")\n\n    def rotate_angle(self, angle_degrees, speed=None):\n        if speed is None:\n            speed = self.base_speed\n        print(\"Starting rotate_angle of \" + str(angle_degrees) + \" degrees\")\n\n        # Compute rotation distance\n        rotation_circumference = 3.1416 * self.axle_track_mm\n        rotation_distance_mm = (rotation_circumference * angle_degrees) / 360.0\n\n        # Compute wheel rotation angle\n        wheel_circumference = 3.1416 * self.wheel_diameter_mm\n        wheel_rotation_angle = (rotation_distance_mm / wheel_circumference) * 360.0  # degrees\n\n        # Use move_to_angle to move the motors\n        self.left_motor.move_to_angle(wheel_rotation_angle, speed, wait=False)\n        self.right_motor.move_to_angle(-wheel_rotation_angle, speed)\n\n        print(\"rotate_angle completed.\")\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/systems/DriveSystem.py b/systems/DriveSystem.py
+--- a/systems/DriveSystem.py	(revision 6c2cd4c1f45c1302fb25471f73b3265768a24e12)
++++ b/systems/DriveSystem.py	(date 1731834681309)
+@@ -31,6 +31,7 @@
+ 
+         wheel_circumference = 3.1416 * self.wheel_diameter_mm
+         target_angle = (distance_mm / wheel_circumference) * 360.0  # degrees
++        print("Target angle: " + str(target_angle))
+ 
+         # Start moving
+         while True:
+@@ -38,9 +39,12 @@
+             left_angle = self.left_motor.motor.angle()
+             right_angle = self.right_motor.motor.angle()
+             average_angle = (left_angle + right_angle) / 2.0
++            
++            print("Left angle: " + str(left_angle) + ", Right angle: " + str(right_angle) + ", Average angle: " + str( average_angle))
+ 
+             if average_angle >= target_angle:
+                 # Target distance reached
++                print("Target angle reached.")
+                 break
+ 
+             # Get correction from LightSystem
+@@ -84,8 +88,14 @@
+         rotation_angle = (distance_mm / wheel_circumference) * 360.0  # degrees
+ 
+         # Move both motors forward by rotation_angle
+-        self.left_motor.move_to_angle(rotation_angle, speed, wait=False)
+-        self.right_motor.move_to_angle(rotation_angle, speed)
++        while True:
++            self.left_motor.move_to_angle(rotation_angle, speed, wait=False)
++            self.right_motor.move_to_angle(rotation_angle, speed, wait=False)
++            
++            average_angle = (self.left_motor.motor.angle() + self.right_motor.motor.angle()) / 2.0
++            
++            if average_angle >= rotation_angle:
++                break
+ 
+         print("move_distance_without_correction completed.")
+ 
+Index: systems/LightSystem.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from pybricks.ev3devices import ColorSensor\n\n\ndef is_ball(r, g, b):\n    if r + g + b > 80:\n        return True\n\n\nclass LightSystem:\n    def __init__(self, sensor_port, blue_threshold_on_line, dead_zone=1, initial_correction_magnitude=1,\n                 max_correction_magnitude=3, readings_to_consider=2):\n        self.color_sensor = ColorSensor(sensor_port)\n        self.BLUE_THRESHOLD_ON_LINE = blue_threshold_on_line\n        self.DEAD_ZONE = dead_zone\n        self.correction_direction = 1  # Start with default direction\n        self.correction_magnitude = initial_correction_magnitude\n        self.max_correction_magnitude = max_correction_magnitude\n        self.readings_to_consider = readings_to_consider  # Number of readings to consider for trend\n        self.deviation_history = []\n        self.same_or_worse_counter = 0\n        self.successful_readings = 0\n\n    def get_correction(self):\n        r, g, b = self.color_sensor.rgb()\n\n        if is_ball(r, g, b):\n            # Ball detected => we can't rely on the sensor\n            return 0\n\n        blue_value = b\n\n        # Calculate deviation from the threshold\n        deviation = abs(blue_value - self.BLUE_THRESHOLD_ON_LINE)\n\n        # Check if we are within the dead zone\n        if deviation <= self.DEAD_ZONE:\n            # We're on the line\n            self.correction_direction = 1  # Reset to default\n            self.correction_magnitude = 1  # Reset magnitude\n            self.same_or_worse_counter = 0\n            self.deviation_history = []\n            self.successful_readings += 1\n            return 0  # No correction needed\n        else:\n            # Off the line\n            self.successful_readings = 0  # Reset successful readings counter\n\n            # Append current deviation to history\n            self.deviation_history.append(deviation)\n            if len(self.deviation_history) > self.readings_to_consider:\n                self.deviation_history.pop(0)\n\n            # Check if deviation is improving\n            if len(self.deviation_history) >= 2:\n                if self.deviation_history[-1] >= self.deviation_history[-2]:\n                    # Deviation is same or worse\n                    self.same_or_worse_counter += 1\n                else:\n                    # Deviation is improving\n                    self.same_or_worse_counter = 0  # Reset counter\n\n            if self.same_or_worse_counter >= self.readings_to_consider:\n                # Reverse correction direction and increase magnitude\n                self.correction_direction *= -1\n                self.correction_magnitude = min(self.correction_magnitude + 1, self.max_correction_magnitude)\n                self.same_or_worse_counter = 0  # Reset counter\n                self.deviation_history = []  # Reset deviation history\n\n            # Compute correction\n            correction = self.correction_direction * self.correction_magnitude\n\n            return correction\n\n    def is_ball_detected(self):\n        r, g, b = self.color_sensor.rgb()\n        return is_ball(r, g, b)\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/systems/LightSystem.py b/systems/LightSystem.py
+--- a/systems/LightSystem.py	(revision 6c2cd4c1f45c1302fb25471f73b3265768a24e12)
++++ b/systems/LightSystem.py	(date 1731833457356)
+@@ -7,7 +7,7 @@
+ 
+ 
+ class LightSystem:
+-    def __init__(self, sensor_port, blue_threshold_on_line, dead_zone=1, initial_correction_magnitude=1,
++    def __init__(self, sensor_port, blue_threshold_on_line, dead_zone=3, initial_correction_magnitude=1,
+                  max_correction_magnitude=3, readings_to_consider=2):
+         self.color_sensor = ColorSensor(sensor_port)
+         self.BLUE_THRESHOLD_ON_LINE = blue_threshold_on_line
+@@ -22,18 +22,22 @@
+ 
+     def get_correction(self):
+         r, g, b = self.color_sensor.rgb()
++        print("RGB values:", r, g, b)
+ 
+         if is_ball(r, g, b):
+-            # Ball detected => we can't rely on the sensor
++            print("Ball detected, returning 0")
+             return 0
+ 
+         blue_value = b
++        print("Blue value:", blue_value)
+ 
+         # Calculate deviation from the threshold
+         deviation = abs(blue_value - self.BLUE_THRESHOLD_ON_LINE)
++        print("Deviation:", deviation)
+ 
+         # Check if we are within the dead zone
+         if deviation <= self.DEAD_ZONE:
++            print("Within dead zone, resetting correction values")
+             # We're on the line
+             self.correction_direction = 1  # Reset to default
+             self.correction_magnitude = 1  # Reset magnitude
+@@ -42,6 +46,7 @@
+             self.successful_readings += 1
+             return 0  # No correction needed
+         else:
++            print("Outside dead zone, updating correction values")
+             # Off the line
+             self.successful_readings = 0  # Reset successful readings counter
+ 
+@@ -50,14 +55,18 @@
+             if len(self.deviation_history) > self.readings_to_consider:
+                 self.deviation_history.pop(0)
+ 
++            print("Deviation history:", self.deviation_history)
++
+             # Check if deviation is improving
+             if len(self.deviation_history) >= 2:
+                 if self.deviation_history[-1] >= self.deviation_history[-2]:
+                     # Deviation is same or worse
+                     self.same_or_worse_counter += 1
++                    print("Deviation is same or worse, counter:", self.same_or_worse_counter)
+                 else:
+                     # Deviation is improving
+                     self.same_or_worse_counter = 0  # Reset counter
++                    print("Deviation is improving, counter reset")
+ 
+             if self.same_or_worse_counter >= self.readings_to_consider:
+                 # Reverse correction direction and increase magnitude
+@@ -65,12 +74,15 @@
+                 self.correction_magnitude = min(self.correction_magnitude + 1, self.max_correction_magnitude)
+                 self.same_or_worse_counter = 0  # Reset counter
+                 self.deviation_history = []  # Reset deviation history
++                print("Reversing direction and increasing magnitude, direction:", self.correction_direction, "magnitude:", self.correction_magnitude)
+ 
+             # Compute correction
+             correction = self.correction_direction * self.correction_magnitude
++            print("Correction:", correction)
+ 
+             return correction
+ 
+     def is_ball_detected(self):
+         r, g, b = self.color_sensor.rgb()
++        print("Checking for ball, RGB values:", r, g, b)
+         return is_ball(r, g, b)
+Index: tests/test_color_sensor.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/tests/test_color_sensor.py b/test_color_sensor.py
+rename from tests/test_color_sensor.py
+rename to test_color_sensor.py
+--- a/tests/test_color_sensor.py	(revision 6c2cd4c1f45c1302fb25471f73b3265768a24e12)
++++ b/test_color_sensor.py	(date 1731833833784)
+@@ -1,16 +1,11 @@
+ #!/usr/bin/env pybricks-micropython
+ 
+-import os
+-import sys
+-import time
+-
+-# Add the parent directory to the sys.path
+-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+ 
+ from pybricks.ev3devices import ColorSensor
+ from pybricks.parameters import Port
++from pybricks.tools import wait
+ 
+ while True:
+     color_sensor = ColorSensor(Port.S1)
+     print(color_sensor.rgb())
+-    time.sleep(0.01)
++    wait(200)
+Index: playground.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#!/usr/bin/env pybricks-micropython\n\ndef main():\n    print(\"Welcome to the playground!\")\n\n\nif __name__ == \"__main__\":\n    main()\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/playground.py b/playground.py
+--- a/playground.py	(revision 6c2cd4c1f45c1302fb25471f73b3265768a24e12)
++++ b/playground.py	(date 1731834822651)
+@@ -1,7 +1,23 @@
+ #!/usr/bin/env pybricks-micropython
+ 
++from pybricks.parameters import Port
++from systems.LiftSystem import LiftSystem
++
++from systems.DriveSystem import DriveSystem
++from systems.LightSystem import LightSystem
++
++lift_port = Port.D
++
++
+ def main():
+-    print("Welcome to the playground!")
++    light_system = LightSystem(Port.S1, blue_threshold_on_line=7)
++    drive_system = DriveSystem(left_motor_port=Port.A, right_motor_port=Port.C, wheel_diameter_mm=68.8,
++                               axle_track_mm=92.5,
++                               base_speed=300, correction_factor=25, light_system=light_system,
++                               lift_system=LiftSystem(lift_port))
++    drive_system.move_distance(500)
++    #drive_system.move_distance_without_correction(500)
++    #drive_system.rotate_angle(180)
+ 
+ 
+ if __name__ == "__main__":
