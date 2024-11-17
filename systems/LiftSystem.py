@@ -1,7 +1,7 @@
 from pybricks.parameters import Port
 
-from systems.System import System
 from devices.SimpleMotor import SimpleMotor
+from systems.System import System
 
 
 class LiftSystem(System):
@@ -12,12 +12,12 @@ class LiftSystem(System):
         self.simple_motor = SimpleMotor("Lift Motor", port)
 
     def grab(self):
-        self.simple_motor.move(LiftSystem.GRAB_ANGLE, speed=700)
+        self.simple_motor.move_to_angle(LiftSystem.GRAB_ANGLE, speed=700)
         self.system_print("Grabbing a ball")
         self.simple_motor.return_to_zero()
 
     def grab_without_return(self):
-        self.simple_motor.move(LiftSystem.GRAB_ANGLE, speed=700)
-        
+        self.simple_motor.move_to_angle(LiftSystem.GRAB_ANGLE, speed=700)
+
     def run_continuously(self):
         self.simple_motor.run_continuously(speed=-1000)
