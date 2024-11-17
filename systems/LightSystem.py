@@ -1,6 +1,11 @@
 from pybricks.ev3devices import ColorSensor
 
 
+def is_ball(r, g, b):
+    if r + g + b > 100:
+        return True
+
+
 class LightSystem:
     def __init__(self, sensor_port, blue_threshold_on_line, dead_zone=1, initial_correction_magnitude=1,
                  max_correction_magnitude=3, readings_to_consider=2):
@@ -17,6 +22,11 @@ class LightSystem:
 
     def get_correction(self):
         r, g, b = self.color_sensor.rgb()
+
+        if is_ball(r, g, b):
+            # Ball detected => we can't rely on the sensor
+            return 0
+
         blue_value = b
 
         # Calculate deviation from the threshold
@@ -60,3 +70,7 @@ class LightSystem:
             correction = self.correction_direction * self.correction_magnitude
 
             return correction
+
+    def is_ball_detected(self):
+        r, g, b = self.color_sensor.rgb()
+        return is_ball(r, g, b)

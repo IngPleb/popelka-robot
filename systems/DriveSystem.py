@@ -1,11 +1,15 @@
 import time
 
+from pybricks.parameters import Port
+
 from devices.SimpleMotor import SimpleMotor
+from systems.LiftSystem import LiftSystem
+from systems.LightSystem import LightSystem
 
 
 class DriveSystem:
-    def __init__(self, left_motor_port, right_motor_port, wheel_diameter_mm, axle_track_mm, base_speed,
-                 correction_factor, light_system):
+    def __init__(self, left_motor_port: Port, right_motor_port: Port, wheel_diameter_mm, axle_track_mm, base_speed,
+                 correction_factor, light_system: LightSystem, lift_system: LiftSystem):
         # Initialize motors
         self.left_motor = SimpleMotor('left', left_motor_port)
         self.right_motor = SimpleMotor('right', right_motor_port)
@@ -16,10 +20,7 @@ class DriveSystem:
         self.base_speed = base_speed
         self.correction_factor = correction_factor
         self.light_system = light_system
-
-    def is_ball_detected(self):
-        # TODO Placeholder for now; implement ball detection logic here
-        return False
+        self.lift_system = lift_system
 
     def move_distance(self, distance_mm):
         print("Starting move_distance of " + str(distance_mm) + " mm")
@@ -58,9 +59,12 @@ class DriveSystem:
             print("Left speed: " + str(left_speed) + ", Right speed: " + str(right_speed))
 
             # Check for ball detection
-            if self.is_ball_detected():
+            if self.light_system.is_ball_detected():
                 # For now, pass
-                print("Ball detected, but not implemented yet.")
+                print("Ball detected, but not really implemented yet.")
+                # TODO: Decide if use self.lift_system.grab() or self.lift_system.grab_without_return()
+                # TODO: Implement on different thread
+                self.lift_system.grab_without_return()
                 pass
 
             # Small delay to prevent tight loop
