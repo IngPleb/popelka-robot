@@ -1,45 +1,62 @@
-BALL_COLOR_THRESHOLD = 52
-
-
-def is_ball(r, g, b):
-    return r + g + b > BALL_COLOR_THRESHOLD
+from pybricks.ev3devices import ColorSensor
 
 
 class LightSystem:
-    def __init__(self, sensor_port, blue_threshold_on_line, blue_threshold_off_line, history_length=5):
-        from pybricks.ev3devices import ColorSensor
+    def __init__(self, sensor_port, blue_threshold_on_line, dead_zone=1, initial_correction_magnitude=1,
+                 max_correction_magnitude=3, readings_to_consider=2):
         self.color_sensor = ColorSensor(sensor_port)
         self.BLUE_THRESHOLD_ON_LINE = blue_threshold_on_line
-        self.BLUE_THRESHOLD_OFF_LINE = blue_threshold_off_line
-        self.history = []
-        self.history_length = history_length
-        self.DEAD_ZONE = 1
-        self.MIN_CORRECTION_THRESHOLD = 0.2
+        self.DEAD_ZONE = dead_zone
+        self.correction_direction = 1  # Start with default direction
+        self.correction_magnitude = initial_correction_magnitude
+        self.max_correction_magnitude = max_correction_magnitude
+        self.readings_to_consider = readings_to_consider  # Number of readings to consider for trend
+        self.deviation_history = []
+        self.same_or_worse_counter = 0
+        self.successful_readings = 0
 
     def get_correction(self):
         r, g, b = self.color_sensor.rgb()
+        blue_value = b
 
-        if is_ball(r, g, b):
-            print("Ball detected")
-            return 0
-
-        # Dead zone logic
-        if self.BLUE_THRESHOLD_ON_LINE - self.DEAD_ZONE <= b <= self.BLUE_THRESHOLD_ON_LINE + self.DEAD_ZONE:
-            return 0  # No correction needed
-        elif b > self.BLUE_THRESHOLD_ON_LINE + self.DEAD_ZONE:
-            return 1  # Off the line (right)
-        elif b < self.BLUE_THRESHOLD_ON_LINE - self.DEAD_ZONE:
-            return -1  # Off the line (left)
-
-    def get_smoothed_correction(self, current_correction):
-        self.history.append(current_correction)
-        if len(self.history) > self.history_length:
-            self.history.pop(0)
-        return sum(self.history) / len(self.history)
-
-    def adjust_correction(self, correction, blue_value):
+        # Calculate deviation from the threshold
         deviation = abs(blue_value - self.BLUE_THRESHOLD_ON_LINE)
-        if deviation < self.MIN_CORRECTION_THRESHOLD:
-            return 0  # Ignore minor deviations
-        scaled_correction = correction * (1 + deviation / 10)  # Scale correction dynamically
-        return scaled_correction
+
+        # Check if we are within the dead zone
+        if deviation <= self.DEAD_ZONE:
+            # We're on the line
+            self.correction_direction = 1  # Reset to default
+            self.correction_magnitude = 1  # Reset magnitude
+            self.same_or_worse_counter = 0
+            self.deviation_history = []
+            self.successful_readings += 1
+            return 0  # No correction needed
+        else:
+            # Off the line
+            self.successful_readings = 0  # Reset successful readings counter
+
+            # Append current deviation to history
+            self.deviation_history.append(deviation)
+            if len(self.deviation_history) > self.readings_to_consider:
+                self.deviation_history.pop(0)
+
+            # Check if deviation is improving
+            if len(self.deviation_history) >= 2:
+                if self.deviation_history[-1] >= self.deviation_history[-2]:
+                    # Deviation is same or worse
+                    self.same_or_worse_counter += 1
+                else:
+                    # Deviation is improving
+                    self.same_or_worse_counter = 0  # Reset counter
+
+            if self.same_or_worse_counter >= self.readings_to_consider:
+                # Reverse correction direction and increase magnitude
+                self.correction_direction *= -1
+                self.correction_magnitude = min(self.correction_magnitude + 1, self.max_correction_magnitude)
+                self.same_or_worse_counter = 0  # Reset counter
+                self.deviation_history = []  # Reset deviation history
+
+            # Compute correction
+            correction = self.correction_direction * self.correction_magnitude
+
+            return correction
