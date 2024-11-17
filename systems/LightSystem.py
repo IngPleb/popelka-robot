@@ -2,8 +2,10 @@ from pybricks.ev3devices import ColorSensor
 
 
 def is_ball(r, g, b):
-    if r + g + b > 80:
-        return True
+    if r > 20: return True
+    if g > 50: return true
+    if b > 60: return True
+    return False
 
 
 class LightSystem:
