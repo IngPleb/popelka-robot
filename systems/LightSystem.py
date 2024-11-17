@@ -25,6 +25,11 @@ class LightSystem:
 
         if is_ball(r, g, b):
             # Ball detected => we can't rely on the sensor
+            #musíme jít podle senzoru, nemáme podle čeho jinýho
+            #hodnooty je třeba otestovat
+            if r > 50: return 1
+            if g > 50: return 1
+            if b > 50: return 1
             return 0
 
         blue_value = b
