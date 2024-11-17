@@ -4,13 +4,15 @@ import time
 from pybricks.parameters import Port
 
 from devices.SimpleMotor import SimpleMotor
+from devices.SimpleUltraSonic import SimpleUltraSonic
 from systems.LiftSystem import LiftSystem
 from systems.LightSystem import LightSystem
 
 
 class DriveSystem:
     def __init__(self, left_motor_port: Port, right_motor_port: Port, wheel_diameter_mm, axle_track_mm, base_speed,
-                 correction_factor, light_system: LightSystem, lift_system: LiftSystem):
+                 correction_factor, light_system: LightSystem, lift_system: LiftSystem,
+                 simple_ultra_sonic: SimpleUltraSonic):
         # Initialize motors
         self.left_motor = SimpleMotor('left', left_motor_port)
         self.right_motor = SimpleMotor('right', right_motor_port)
@@ -22,6 +24,7 @@ class DriveSystem:
         self.correction_factor = correction_factor
         self.light_system = light_system
         self.lift_system = lift_system
+        self.simple_ultra_sonic = simple_ultra_sonic
 
     def move_distance(self, distance_mm):
         print("Starting move_distance of " + str(distance_mm) + " mm")
@@ -65,7 +68,7 @@ class DriveSystem:
             print("Left speed: " + str(left_speed) + ", Right speed: " + str(right_speed))
 
             # Check for ball detection
-            if self.light_system.is_ball_detected():
+            if self.simple_ultra_sonic.is_object_in_front():
                 time.sleep(0.3)
                 print("Ball detected, initiating grab sequence.")
                 _thread.start_new_thread(self.lift_system.grab_without_return, ())
