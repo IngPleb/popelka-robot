@@ -19,7 +19,7 @@ def main():
     lift = LiftSystem(port=Port.D)
 
     lift.run_continuously()
-    lift.grab_without_return()
+    #lift.grab_without_return()
 
     # Initialize the LightCorrectionSystem
     light_correction_system = LightSystem(
