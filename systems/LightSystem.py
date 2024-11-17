@@ -5,7 +5,7 @@ def is_ball(r, g, b):
     return r + g + b > BALL_COLOR_THRESHOLD
 
 
-class LightCorrectionSystem:
+class LightSystem:
     def __init__(self, sensor_port, blue_threshold_on_line, blue_threshold_off_line, history_length=5):
         from pybricks.ev3devices import ColorSensor
         self.color_sensor = ColorSensor(sensor_port)
