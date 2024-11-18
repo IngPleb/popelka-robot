@@ -82,6 +82,7 @@ class DriveSystem:
         print("move_distance completed.")
 
     def move_distance_without_correction(self, distance_mm, speed=None):
+        # TODO: This is method isn't implemented correctly – rework it
         if speed is None:
             speed = self.base_speed
         print("Starting move_distance_without_correction of " + str(distance_mm) + " mm")
