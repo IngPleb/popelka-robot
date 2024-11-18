@@ -46,7 +46,7 @@ class DriveSystem:
             average_angle = (left_angle + right_angle) / 2.0
 
             print("Left angle: " + str(left_angle) + ", Right angle: " + str(right_angle) + ", Average angle: " + str(
-                average_angle)+"Target angle: " + str(target_angle))
+                average_angle) + "Target angle: " + str(target_angle))
 
             if distance_mm > 0:
                 if average_angle >= target_angle:
@@ -59,7 +59,7 @@ class DriveSystem:
                     # Target distance reached
                     print("Target angle reached.")
                     break
-            
+
             if temp_correction_rule is True:
                 print("correction is running")
                 # Get correction from LightSystem
@@ -101,28 +101,6 @@ class DriveSystem:
         self.left_motor.stop()
         self.right_motor.stop()
         print("move_distance completed.")
-
-    def move_distance_without_correction(self, distance_mm, speed=None):
-        # TODO: This is method isn't implemented correctly – rework it
-        #not needed, to the main function has been adde an arg whther to use correction or this, can delete this
-        if speed is None:
-            speed = self.base_speed
-        print("Starting move_distance_without_correction of " + str(distance_mm) + " mm")
-
-        wheel_circumference = 3.1416 * self.wheel_diameter_mm
-        rotation_angle = (distance_mm / wheel_circumference) * 360.0  # degrees
-
-        # Move both motors forward by rotation_angle
-        while True:
-            self.left_motor.move_to_angle(rotation_angle, speed, wait=False)
-            self.right_motor.move_to_angle(rotation_angle, speed, wait=False)
-
-            average_angle = (self.left_motor.motor.angle() + self.right_motor.motor.angle()) / 2.0
-
-            if average_angle >= rotation_angle:
-                break
-
-        print("move_distance_without_correction completed.")
 
     def rotate_angle(self, angle_degrees, speed=None):
         if speed is None:

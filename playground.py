@@ -17,18 +17,14 @@ def main():
                                axle_track_mm=92.5,
                                base_speed=200, correction_factor=35, light_system=light_system,
                                lift_system=LiftSystem(lift_port), simple_ultra_sonic=ultra_sonic_sensor)
-    drive_system.move_distance(750,True) # true for turn on the correction
-    drive_system.move_distance(75,False)
-    drive_system.move_distance(-25,False)
-    # drive_system.move_distance_without_correction(500)
+    drive_system.move_distance(750, True)  # true for turn on the correction
+    drive_system.move_distance(75, False)
+    drive_system.move_distance(-25, False)
     drive_system.rotate_angle(-340)
-    drive_system.move_distance(200,False)
-    drive_system.move_distance(-50,False)
+    drive_system.move_distance(200, False)
+    drive_system.move_distance(-50, False)
     drive_system.rotate_angle(-350)
-    drive_system.move_distance(750,True)
-
-
-
+    drive_system.move_distance(750, True)
 
 
 if __name__ == "__main__":
