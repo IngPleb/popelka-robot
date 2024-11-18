@@ -3,10 +3,10 @@ from pybricks.parameters import Port
 
 
 class SimpleUltraSonic:
-    def __init__(self, port: Port, object_inFront_distance: int):
+    def __init__(self, port: Port, object_in_front_distance: int):
         self.name = "UltraSoundSensor"
         self.sensorDevice = UltrasonicSensor(port)
-        self.object_inFront_distance = object_inFront_distance
+        self.object_inFront_distance = object_in_front_distance
         print("UltraSoundSensor initialized on port {}".format(port))
 
     def is_object_in_front(self):
