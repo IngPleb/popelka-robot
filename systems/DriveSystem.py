@@ -26,8 +26,9 @@ class DriveSystem:
         self.lift_system = lift_system
         self.simple_ultra_sonic = simple_ultra_sonic
 
-    def move_distance(self, distance_mm):
-        print("Starting move_distance of " + str(distance_mm) + " mm")
+    def move_distance(self, distance_mm, general_correction_rule):
+        print("Starting move_distance of " + str(distance_mm) + " mm with correction" + str(general_correction_rule))
+        temp_correction_rule = general_correction_rule
 
         # Reset motor angles
         self.left_motor.motor.reset_angle(0)
@@ -45,33 +46,53 @@ class DriveSystem:
             average_angle = (left_angle + right_angle) / 2.0
 
             print("Left angle: " + str(left_angle) + ", Right angle: " + str(right_angle) + ", Average angle: " + str(
-                average_angle))
+                average_angle)+"Target angle: " + str(target_angle))
 
-            if average_angle >= target_angle:
-                # Target distance reached
-                print("Target angle reached.")
-                break
+            if distance_mm > 0:
+                if average_angle >= target_angle:
+                    # Target distance reached
+                    print("Target angle reached.")
+                    break
 
-            # Get correction from LightSystem
-            correction = self.light_system.get_correction()
-            # Adjust motor speeds
-            left_speed = self.base_speed - (correction * self.correction_factor)
-            right_speed = self.base_speed + (correction * self.correction_factor)
+            if distance_mm < 0:
+                if average_angle <= target_angle:
+                    # Target distance reached
+                    print("Target angle reached.")
+                    break
+            
+            if temp_correction_rule is True:
+                print("correction is running")
+                # Get correction from LightSystem
+                correction = self.light_system.get_correction()
+                # Adjust motor speeds
+                left_speed = self.base_speed - (correction * self.correction_factor)
+                right_speed = self.base_speed + (correction * self.correction_factor)
+
+            else:
+                left_speed = self.base_speed
+                right_speed = self.base_speed
 
             # Set motor speeds
-            self.left_motor.run(left_speed)
-            self.right_motor.run(right_speed)
+            if distance_mm > 0:
+                self.left_motor.run(left_speed)
+                self.right_motor.run(right_speed)
+            if distance_mm < 0:
+                self.left_motor.run(-left_speed)
+                self.right_motor.run(-right_speed)
 
             # Debug statements
             print("Left angle: " + str(left_angle) + ", Right angle: " + str(right_angle) + ", Correction: " + str(
-                correction))
+                general_correction_rule))
             print("Left speed: " + str(left_speed) + ", Right speed: " + str(right_speed))
 
             # Check for ball detection
             if self.simple_ultra_sonic.is_object_in_front():
+                if general_correction_rule is True:
+                    temp_correction_rule = False
                 time.sleep(0.3)
                 print("Ball detected, initiating grab sequence.")
                 _thread.start_new_thread(self.lift_system.grab_without_return, ())
+                temp_correction_rule = True
 
             # Small delay to prevent tight loop
             time.sleep(0.01)  # wait 10 ms
@@ -83,6 +104,7 @@ class DriveSystem:
 
     def move_distance_without_correction(self, distance_mm, speed=None):
         # TODO: This is method isn't implemented correctly – rework it
+        #not needed, to the main function has been adde an arg whther to use correction or this, can delete this
         if speed is None:
             speed = self.base_speed
         print("Starting move_distance_without_correction of " + str(distance_mm) + " mm")

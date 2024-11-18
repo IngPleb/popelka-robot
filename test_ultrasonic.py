@@ -7,7 +7,7 @@ from devices.SimpleUltraSonic import SimpleUltraSonic
 
 from pybricks.tools import wait
 
-ultra_sonic_sensor = SimpleUltraSonic(Port.S1, 100)
+ultra_sonic_sensor = SimpleUltraSonic(Port.S2, 120)
 
 while True:
     print(ultra_sonic_sensor.is_object_in_front())
