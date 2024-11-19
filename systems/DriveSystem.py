@@ -25,7 +25,7 @@ class DriveSystem:
         self.light_system = light_system
         self.lift_system = lift_system
         self.simple_ultra_sonic = simple_ultra_sonic
-        self.move_scale_factor = 1  # if distanec dont quite match, adjust this
+        self.move_scale_factor = 1  # if distance dont quite match, adjust this
         self.rotate_scale_factor = 3.888 #and this
 
     def move_distance(self, distance_mm, general_correction_rule):
@@ -91,7 +91,7 @@ class DriveSystem:
             if self.simple_ultra_sonic.is_object_in_front():
                 if general_correction_rule is True:
                     temp_correction_rule = False
-                time.sleep(0.3)
+                time.sleep(0.4)
                 print("Ball detected, initiating grab sequence.")
                 _thread.start_new_thread(self.lift_system.grab_without_return, ())
                 temp_correction_rule = True
@@ -105,9 +105,16 @@ class DriveSystem:
         print("move_distance completed.")
 
     def rotate_angle(self, angle_degrees, speed=None):
+        CORRECTION_VALUE = 3
+        
         if speed is None:
-            speed = self.base_speed
+            speed = self.base_speed + 100
         print("Starting rotate_angle of target" + str(angle_degrees) + " degrees, real" + str(angle_degrees*self.rotate_scale_factor) +"degrees")
+        
+        if angle_degrees < 0:
+            angle_degrees = angle_degrees + CORRECTION_VALUE   # Correct for overshoot
+        else:
+            angle_degrees = angle_degrees - CORRECTION_VALUE
 
         # Compute rotation distance
         rotation_circumference = 3.1416 * self.axle_track_mm
