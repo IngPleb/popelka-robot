@@ -70,6 +70,11 @@ class DriveSystem:
                 # Calculate correction based on gyro angle
                 # The correction factor may need to be adjusted based on testing
                 correction = angle * self.correction_factor
+                if angle > 0:
+                    angle = min(angle, 10)
+                else:
+                    angle = max(angle, -10)
+                correction = angle * self.correction_factor
             else:
                 # We are on the line
                 correction = 0

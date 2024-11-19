@@ -11,4 +11,4 @@ class GyroSystem:
         self.gyro_sensor.reset_angle(0)
 
     def get_angle(self):
-        return self.gyro_sensor.angle()
+        return self.gyro_sensor.angle() * -1

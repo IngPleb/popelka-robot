@@ -33,7 +33,7 @@ def main():
         wheel_diameter_mm=68.8,
         axle_track_mm=92.5,
         base_speed=200,
-        correction_factor=2,  # Adjusted for combined gyro and light correction
+        correction_factor=7,  # Adjusted for combined gyro and light correction
         light_system=light_system,
         lift_system=lift_system,
         simple_ultra_sonic=ultra_sonic_sensor,
@@ -48,7 +48,7 @@ def main():
 
     # Rotations
     drive_system.rotate_angle(-90)
-    drive_system.move_distance(290)
+    drive_system.move_distance(260)
     drive_system.rotate_angle(90)
 
     drive_system.move_distance(750)
