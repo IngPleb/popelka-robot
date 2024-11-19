@@ -29,6 +29,7 @@ class DriveSystem:
         self.move_scale_factor = 1  # if distance doesn't quite match, adjust this
         self.rotate_scale_factor = 3.888  # Adjust this if needed
         self.balls_count = 0
+        self.self_search_correction = 0
 
     def move_distance(self, distance_mm, use_correction=True):
         print("Starting move_distance of {} mm".format(distance_mm * self.move_scale_factor))
@@ -47,9 +48,6 @@ class DriveSystem:
             left_angle = self.left_motor.motor.angle()
             right_angle = self.right_motor.motor.angle()
             average_angle = (left_angle + right_angle) / 2.0
-
-            print("Left angle: {}, Right angle: {}, Average angle: {}, Target angle: {}".format(
-                left_angle, right_angle, average_angle, target_angle))
 
             # Check if target distance is reached
             if distance_mm > 0:
@@ -71,16 +69,22 @@ class DriveSystem:
                 # Calculate correction based on gyro angle
                 # The correction factor may need to be adjusted based on testing
                 correction = angle * self.correction_factor
-                if angle > 0:
-                    angle = min(angle, 10)
+                if angle > 10:
+                    angle = min(angle, 30)
+                elif angle < 10:
+                    angle = max(angle, -30)
                 else:
-                    angle = max(angle, -10)
+                    angle = (self.self_search_correction+1)*-1.5
+
+                    
                 correction = angle * self.correction_factor
             else:
                 # We are on the line
+                self.self_search_correction = 0
                 correction = 0
                 # Reset gyro angle when back on line
-                print("On the line..")
+                angle = self.gyro_system.get_angle()
+                print("On the line. Gyro angle: {}".format(angle))
                 
             if not use_correction:
                 correction = 0
@@ -102,9 +106,6 @@ class DriveSystem:
                 self.left_motor.run(-left_speed)
                 self.right_motor.run(-right_speed)
 
-            # Debug statements
-            print("Left speed: {}, Right speed: {}, Correction: {}".format(
-                left_speed, right_speed, correction))
 
             # Check for ball detection
             if self.simple_ultra_sonic.is_object_in_front():
@@ -150,3 +151,31 @@ class DriveSystem:
         # After rotation, reset gyro angle
         self.gyro_system.reset_angle()
         print("rotate_angle completed.")
+
+    def rotate_until_line(self,clockwise, speed = None): #clockwise - true/false
+        if speed is None:
+            speed = self.base_speed + 100
+
+        if clockwise is True:
+            self.left_motor.run(-speed/2)
+            self.right_motor.run(speed/2)
+
+
+        else:
+            self.left_motor.run(speed/2)
+            self.right_motor.run(-speed/2)
+
+        print("ha")
+        time.sleep(0.5)
+        print("to")
+        while True:
+            time.sleep(0.01)
+            if self.light_system.is_on_line():
+                self.gyro_system.reset_angle()
+                self.right_motor.stop()
+                self.left_motor.stop()
+                print("stop")
+                break
+    
+
+        
