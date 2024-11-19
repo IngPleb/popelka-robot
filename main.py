@@ -32,6 +32,7 @@ def main():
                                lift_system=lift_system, simple_ultra_sonic=ultra_sonic_sensor)
 
     # Routine instructions
+   # taking it from the other side of the map? anyways, after reaching the end of line, the last ball isn't collected yet, and we need to move a bit more (without correction, hence the 750T + 75F) and then it's a good idea to go back a bit for rotation
     # Four perpendicular lines from the main line
     for i in range(4):
         # The distance is theoretically 840 mm
