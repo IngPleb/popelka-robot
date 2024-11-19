@@ -1,19 +1,14 @@
 #!/usr/bin/env pybricks-micropython
+from pybricks.ev3devices import GyroSensor
 from pybricks.parameters import Port
 from pybricks.tools import wait
 
-from devices.SimpleUltraSonic import SimpleUltraSonic
-from systems.LiftSystem import LiftSystem
-
 
 def main():
-    simple_ultrasonic = SimpleUltraSonic(Port.S2, 120)
-    lift_system = LiftSystem(Port.D)
+    gyro = GyroSensor(Port.S4)
+    gyro.reset_angle(0)
     while True:
-        print(simple_ultrasonic.is_object_in_front())
-        print(simple_ultrasonic)
-        if simple_ultrasonic.is_object_in_front():
-            lift_system.grab_without_return()
+        print(gyro.angle())
         wait(200)
 
 

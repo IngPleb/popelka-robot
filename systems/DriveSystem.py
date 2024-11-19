@@ -91,7 +91,7 @@ class DriveSystem:
             if self.simple_ultra_sonic.is_object_in_front():
                 if general_correction_rule is True:
                     temp_correction_rule = False
-                time.sleep(0.4)
+                time.sleep(0.35)
                 print("Ball detected, initiating grab sequence.")
                 _thread.start_new_thread(self.lift_system.grab_without_return, ())
                 temp_correction_rule = True
