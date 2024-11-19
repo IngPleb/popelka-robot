@@ -34,29 +34,33 @@ def main():
     # Routine instructions
    # taking it from the other side of the map? anyways, after reaching the end of line, the last ball isn't collected yet, and we need to move a bit more (without correction, hence the 750T + 75F) and then it's a good idea to go back a bit for rotation
     # Four perpendicular lines from the main line
-    for i in range(4):
-        # The distance is theoretically 840 mm
-        # We will see based on the Adam's empirical data  (750 with correction + 75 without correction)
-        drive_system.move_distance(840, True)
-        drive_system.rotate_angle(180)
-        # Returning back to the main line
-        drive_system.move_distance(800, True)
-        # We have noticed in earlier tests that the robot will make errors at crossing the perpendicular lines
-        drive_system.move_distance(40, False)
 
-        # Connecting to the main line
-        drive_system.rotate_angle(90)  # TODO: find out if it is + or -
-        drive_system.move_distance(280, False)
-        drive_system.rotate_angle(-90)
+
+
+
+    # for i in range(4):
+    #     # The distance is theoretically 840 mm
+    #     # We will see based on the Adam's empirical data  (750 with correction + 75 without correction)
+    #     drive_system.move_distance(840, True)
+    #     drive_system.rotate_angle(180)
+    #     # Returning back to the main line
+    #     drive_system.move_distance(800, True)
+    #     # We have noticed in earlier tests that the robot will make errors at crossing the perpendicular lines
+    #     drive_system.move_distance(40, False)
+
+    #     # Connecting to the main line
+    #     drive_system.rotate_angle(90)  # TODO: find out if it is + or -  --> negative is counterclockwise
+    #     drive_system.move_distance(280, False)
+    #     drive_system.rotate_angle(-90)
 
     # Adam's empirical data (we will use it for the adjusting the theoretical routine)
     # drive_system.move_distance(750, True)  # true for turn on the correction
-    # drive_system.move_distance(75, False)
-    # drive_system.move_distance(-25, False)
-    # drive_system.rotate_angle(-340)
-    # drive_system.move_distance(200, False)
+    # drive_system.move_distance(50, False)
     # drive_system.move_distance(-50, False)
-    # drive_system.rotate_angle(-350)
+    # drive_system.rotate_angle(-340)
+    # drive_system.move_distance(300, False)
+    # drive_system.move_distance(-50, False)
+    # drive_system.rotate_angle(-340)
     # drive_system.move_distance(750, True)
 
 
