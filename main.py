@@ -44,15 +44,15 @@ def main():
     #######################
     # Move along the line using combined gyro and light correction
     drive_system.move_distance(750)
-    drive_system.move_distance(-850)
+    drive_system.move_distance(-850, use_correction=False)
 
     # Rotations
     drive_system.rotate_angle(-90)
-    drive_system.move_distance(260)
+    drive_system.move_distance(270, use_correction=False)
     drive_system.rotate_angle(90)
 
     drive_system.move_distance(750)
-    drive_system.move_distance(-850)
+    drive_system.move_distance(-850, use_correction=False)
 
 if __name__ == "__main__":
     main()

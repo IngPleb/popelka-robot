@@ -29,7 +29,7 @@ class DriveSystem:
         self.move_scale_factor = 1  # if distance doesn't quite match, adjust this
         self.rotate_scale_factor = 3.888  # Adjust this if needed
 
-    def move_distance(self, distance_mm):
+    def move_distance(self, distance_mm, use_correction=True):
         print("Starting move_distance of {} mm".format(distance_mm * self.move_scale_factor))
 
         # Reset motor angles
@@ -80,6 +80,9 @@ class DriveSystem:
                 correction = 0
                 # Reset gyro angle when back on line
                 print("On the line..")
+                
+            if not use_correction:
+                correction = 0
 
             # Adjust motor speeds based on correction
             left_speed = self.base_speed - correction
