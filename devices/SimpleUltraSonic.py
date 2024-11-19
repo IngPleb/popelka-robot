@@ -10,7 +10,7 @@ class SimpleUltraSonic:
         print("UltraSoundSensor initialized on port {}".format(port))
 
     def is_object_in_front(self):
-        print("Distance: {}".format(self.sensorDevice.distance()))
+        # print("Distance: {}".format(self.sensorDevice.distance()))
         return self.sensorDevice.distance() <= self.object_inFront_distance or self.sensorDevice.distance() == 2550
 
     def distance(self):

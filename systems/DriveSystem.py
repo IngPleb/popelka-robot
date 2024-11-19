@@ -29,7 +29,8 @@ class DriveSystem:
         self.move_scale_factor = 1  # if distance doesn't quite match, adjust this
         self.rotate_scale_factor = 3.888  # Adjust this if needed
         self.balls_count = 0
-        self.self_search_correction = 0
+        self.self_search_correction = 10
+        self.gyro_correction = True
 
     def move_distance(self, distance_mm, use_correction=True):
         print("Starting move_distance of {} mm".format(distance_mm * self.move_scale_factor))
@@ -75,16 +76,35 @@ class DriveSystem:
                     angle = max(angle, -30)
                     print("gyro search with angle"+str(angle))
                 else:
-                    angle = (self.self_search_correction+1)*-1.5
-                    self.self_search_correction = (self.self_search_correction+1)*-1.5
+                    angle = (self.self_search_correction)*-1.03
+                    self.self_search_correction = (self.self_search_correction)*-1.03
+                    if angle>1000: angle = 1000
+                    if angle<-1000: angle = -1000
                     print("zigzag search with angle" + str(angle))
-                    self.gyro_system.reset_angle()
+                    self.gyro_correction = False
+
 
                     
                 correction = angle * self.correction_factor
             else:
                 # We are on the line
-                self.self_search_correction = 0
+                if self.gyro_correction == False:
+                    self.gyro_correction = True
+                    self.gyro_system.reset_angle()
+                    self.self_search_correction = 10
+                    if angle > 20:
+                        if angle > 50:
+                            correction = 25
+                        else:
+                            correction = 10
+
+                    if angle > -20:
+                        if angle > -50:
+                            correction = -25
+                        else:
+                            correction = -10
+
+                    angle = 0
                 correction = 0
                 # Reset gyro angle when back on line
                 angle = self.gyro_system.get_angle()

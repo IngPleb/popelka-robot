@@ -24,7 +24,7 @@ def main():
     # Initialize needed systems with Dependency Injection
     #######################
     light_system = LightSystem(light_port, blue_threshold_on_line=7)
-    ultra_sonic_sensor = SimpleUltraSonic(ultra_sonic_port, 120)
+    ultra_sonic_sensor = SimpleUltraSonic(ultra_sonic_port, 140)
     lift_system = LiftSystem(lift_port)
     gyro_system = GyroSystem(gyro_sensor_port)
     drive_system = DriveSystem(
@@ -46,8 +46,8 @@ def main():
     #we will go from the upper right, form the side of the upper block, and we will end next to the small block
     for i in range(3):
         drive_system.move_distance(680)
-        drive_system.move_distance(100, use_correction=False)
-        drive_system.move_distance(-800, use_correction=False)
+        drive_system.move_distance(130, use_correction=False)
+        drive_system.move_distance(-820, use_correction=False)
 
         # Rotations
         # drive_system.rotate_angle(-90)
@@ -56,7 +56,7 @@ def main():
         # drive_system.rotate_angle(90)
         drive_system.rotate_until_line(True)
     
-    drive_system.move_distance(650)
+    drive_system.move_distance(680)
     drive_system.move_distance(100, use_correction=False)
     drive_system.move_distance(-100, use_correction=False)
     drive_system.rotate_angle(-90)
