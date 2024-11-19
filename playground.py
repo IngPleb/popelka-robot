@@ -1,14 +1,15 @@
 #!/usr/bin/env pybricks-micropython
-from pybricks.ev3devices import GyroSensor
 from pybricks.parameters import Port
 from pybricks.tools import wait
 
+from systems.LightSystem import LightSystem
+
 
 def main():
-    gyro = GyroSensor(Port.S4)
-    gyro.reset_angle(0)
+    system = LightSystem(Port.S1, blue_threshold_on_line=7)
+
     while True:
-        print(gyro.angle())
+        print(system.is_on_line())
         wait(200)
 
 
