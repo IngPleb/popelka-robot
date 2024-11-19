@@ -62,6 +62,10 @@ def main():
     # drive_system.move_distance(-50, False)
     # drive_system.rotate_angle(-340)
     # drive_system.move_distance(750, True)
+    # drive_system.rotate_angle(340)
+    # drive_system.move_distance(250, True)
+    # drive_system.rotate_angle(340)
+    # drive_system.move_distance(750, True)
 
 
 if __name__ == "__main__":
