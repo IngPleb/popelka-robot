@@ -53,18 +53,18 @@ def main():
     #     drive_system.move_distance(280, False)
     #     drive_system.rotate_angle(-90)
 
-    # Adam's empirical data (we will use it for the adjusting the theoretical routine)
+    # Adam's empirical data (we will use it for the adjusting the theoretical routine
     # drive_system.move_distance(750, True)  # true for turn on the correction
     # drive_system.move_distance(50, False)
     # drive_system.move_distance(-50, False)
-    # drive_system.rotate_angle(-340)
+    # drive_system.rotate_angle(-90)
     # drive_system.move_distance(300, False)
     # drive_system.move_distance(-50, False)
-    # drive_system.rotate_angle(-340)
+    # drive_system.rotate_angle(-90)
     # drive_system.move_distance(750, True)
-    # drive_system.rotate_angle(340)
+    # drive_system.rotate_angle(90)
     # drive_system.move_distance(250, True)
-    # drive_system.rotate_angle(340)
+    # drive_system.rotate_angle(90)
     # drive_system.move_distance(750, True)
 
 

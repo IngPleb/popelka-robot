@@ -25,9 +25,11 @@ class DriveSystem:
         self.light_system = light_system
         self.lift_system = lift_system
         self.simple_ultra_sonic = simple_ultra_sonic
+        self.move_scale_factor = 1  # if distanec dont quite match, adjust this
+        self.rotate_scale_factor = 3.888 #and this
 
     def move_distance(self, distance_mm, general_correction_rule):
-        print("Starting move_distance of " + str(distance_mm) + " mm with correction" + str(general_correction_rule))
+        print("Starting move_distance of " + str(distance_mm*self.move_scale_factor) + " mm with correction" + str(general_correction_rule))
         temp_correction_rule = general_correction_rule
 
         # Reset motor angles
@@ -35,7 +37,7 @@ class DriveSystem:
         self.right_motor.motor.reset_angle(0)
 
         wheel_circumference = 3.1416 * self.wheel_diameter_mm
-        target_angle = (distance_mm / wheel_circumference) * 360.0  # degrees
+        target_angle = (distance_mm*self.move_scale_factor / wheel_circumference) * 360.0  # degrees
         print("Target angle: " + str(target_angle))
 
         # Start moving
@@ -105,7 +107,7 @@ class DriveSystem:
     def rotate_angle(self, angle_degrees, speed=None):
         if speed is None:
             speed = self.base_speed
-        print("Starting rotate_angle of " + str(angle_degrees) + " degrees")
+        print("Starting rotate_angle of target" + str(angle_degrees) + " degrees, real" + str(angle_degrees*self.rotate_scale_factor) +"degrees")
 
         # Compute rotation distance
         rotation_circumference = 3.1416 * self.axle_track_mm
@@ -113,7 +115,7 @@ class DriveSystem:
 
         # Compute wheel rotation angle
         wheel_circumference = 3.1416 * self.wheel_diameter_mm
-        wheel_rotation_angle = (rotation_distance_mm / wheel_circumference) * 360.0  # degrees
+        wheel_rotation_angle = (rotation_distance_mm*self.rotate_scale_factor / wheel_circumference) * 360.0  # degrees
 
         # Use move_to_angle to move the motors
         self.left_motor.move_to_angle(wheel_rotation_angle, speed, wait=False)
