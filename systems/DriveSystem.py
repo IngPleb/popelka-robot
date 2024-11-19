@@ -68,13 +68,17 @@ class DriveSystem:
                 print("Off the line. Gyro angle: {}".format(angle))
                 # Calculate correction based on gyro angle
                 # The correction factor may need to be adjusted based on testing
-                correction = angle * self.correction_factor
                 if angle > 10:
                     angle = min(angle, 30)
-                elif angle < 10:
+                    print("gyro search with angle"+str(angle))
+                elif angle < -10:
                     angle = max(angle, -30)
+                    print("gyro search with angle"+str(angle))
                 else:
                     angle = (self.self_search_correction+1)*-1.5
+                    self.self_search_correction = (self.self_search_correction+1)*-1.5
+                    print("zigzag search with angle" + str(angle))
+                    self.gyro_system.reset_angle()
 
                     
                 correction = angle * self.correction_factor
@@ -166,7 +170,7 @@ class DriveSystem:
             self.right_motor.run(-speed/2)
 
         print("ha")
-        time.sleep(0.5)
+        time.sleep(1)
         print("to")
         while True:
             time.sleep(0.01)
