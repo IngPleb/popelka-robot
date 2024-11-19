@@ -56,5 +56,7 @@ def main():
     drive_system.move_distance(50, use_correction=False)
     drive_system.move_distance(-850, use_correction=False)
 
+    print(drive_system.balls_count)
+
 if __name__ == "__main__":
     main()

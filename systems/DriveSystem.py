@@ -28,6 +28,7 @@ class DriveSystem:
         self.gyro_system = gyro_system
         self.move_scale_factor = 1  # if distance doesn't quite match, adjust this
         self.rotate_scale_factor = 3.888  # Adjust this if needed
+        self.balls_count = 0
 
     def move_distance(self, distance_mm, use_correction=True):
         print("Starting move_distance of {} mm".format(distance_mm * self.move_scale_factor))
@@ -110,6 +111,7 @@ class DriveSystem:
                 # Handle ball detection logic
                 time.sleep(0.35)
                 print("Ball detected, initiating grab sequence.")
+                self.balls_count+=1
                 _thread.start_new_thread(self.lift_system.grab_without_return, ())
 
             # Small delay to prevent tight loop
