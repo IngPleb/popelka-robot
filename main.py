@@ -23,13 +23,12 @@ def main():
     # Initialize needed systems with Dependency Injection
     #######################
     light_system = LightSystem(light_port, blue_threshold_on_line=7)
-    ultra_sonic_sensor = SimpleUltraSonic(ultra_sonic_port, 120)
     lift_system = LiftSystem(lift_port)
     drive_system = DriveSystem(left_motor_port=left_motor_port, right_motor_port=right_motor_port,
                                wheel_diameter_mm=68.8,
                                axle_track_mm=92.5,
-                               base_speed=200, correction_factor=29, light_system=light_system,
-                               lift_system=lift_system, simple_ultra_sonic=ultra_sonic_sensor)
+                               base_speed=400, correction_factor=29, light_system=light_system,
+                               lift_system=lift_system, simple_ultra_sonic=None)
 
     # Routine instructions
     #######################
