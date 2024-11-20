@@ -37,7 +37,7 @@ class DriveSystem:
         self.gyro_correction = False
         self.gyro_correction_general = self.gyro_correction
         self.counter = 0
-        self.base_counter_barrier = 4
+        self.base_counter_barrier = 8
         self.counter_barrier = self.base_counter_barrier
         self.counter_positive = True
         self.correction_flag = True
@@ -80,16 +80,16 @@ class DriveSystem:
             if self.simple_ultra_sonic.is_object_in_front():
                 self.correction_flag = False
                 # Handle ball detection logic
-                time.sleep(0.45)
+                time.sleep(0.3)
                 print("Ball detected, initiating grab sequence.")
                 self.balls_count+=1
                 _thread.start_new_thread(self.lift_system.grab_without_return, ())
-
+                time.sleep(0.8)
                 self.correction_flag = True
 
 
             # Check if we are on the line
-            elif not self.light_system.is_on_line():
+            elif not self.light_system.is_on_line() and self.correction_flag is True:
                 # We are off the line, use gyro for correction
                 angle = self.gyro_system.get_angle()
                 print("Off the line. Gyro angle: {}".format(angle))
@@ -110,21 +110,22 @@ class DriveSystem:
                     # if angle<-self.max_correction_by_brute_search: angle = -self.max_correction_by_brute_search
                     # print("zigzag search with angle" + str(angle))
                     # self.gyro_correction = False
-                    if self.counter<self.counter_barrier:
-                        print(self.counter)
-                        if self.counter_positive is True:
-                            angle = 20
-                            print("zigzag pozitivni")
+                    if self.counter>5:
+                        if self.counter<self.counter_barrier:
+                            print(self.counter)
+                            if self.counter_positive is True:
+                                angle = 20
+                                print("zigzag pozitivni")
+                            else:
+                                angle = -20
+                                print("zigzag negativni")
+                            
                         else:
-                            angle = -20
-                            print("zigzag negativni")
-                        
-                    else:
-                        print("adjusting zigzaf")
-                        self.counter_barrier*=1.5
-                        if self.counter_positive is True:
-                            self.counter_positive = False
-                        else: self.counter_positive = True
+                            print("adjusting zigzaf")
+                            self.counter_barrier*=1.5
+                            if self.counter_positive is True:
+                                self.counter_positive = False
+                            else: self.counter_positive = True
 
                     self.gyro_correction = False
 

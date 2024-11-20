@@ -21,7 +21,7 @@ left_motor_port = Port.A
 right_motor_port = Port.C
 
 def main():
-    light_system = LightSystem(Port.S1, blue_threshold_on_line=7)
+    light_system = LightSystem(Port.S1, blue_threshold_on_line=8)
     ultra_sonic_sensor = SimpleUltraSonic(ultra_sonic_port, 140)
     lift_system = LiftSystem(lift_port)
     gyro_system = GyroSystem(gyro_sensor_port)

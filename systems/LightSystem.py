@@ -12,7 +12,7 @@ class LightSystem:
     def is_ball(self):
         r, g, b = self.color_sensor.rgb()
         sum = r + g + b
-        if sum > 30 or b>14:
+        if sum > 30 or b>15:
             print("ball detected by light system")
             return True
 

@@ -17,7 +17,7 @@ class LiftSystem(System):
         self.simple_motor.return_to_zero()
 
     def grab_without_return(self):
-        self.simple_motor.move_to_angle(LiftSystem.GRAB_ANGLE, speed=300)
+        self.simple_motor.move_to_angle(LiftSystem.GRAB_ANGLE, speed=900)
 
     def run_continuously(self):
         self.simple_motor.run_continuously(speed=-1000)
