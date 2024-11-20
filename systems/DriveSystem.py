@@ -78,8 +78,8 @@ class DriveSystem:
                 else:
                     angle = (self.self_search_correction)*-1.03
                     self.self_search_correction = (self.self_search_correction)*-1.03
-                    if angle>1000: angle = 1000
-                    if angle<-1000: angle = -1000
+                    if angle>100: angle = 100
+                    if angle<-100: angle = -100
                     print("zigzag search with angle" + str(angle))
                     self.gyro_correction = False
 
@@ -92,7 +92,7 @@ class DriveSystem:
                     self.gyro_correction = True
                     self.gyro_system.reset_angle()
                     self.self_search_correction = 10
-                    if angle > 20:
+                    if angle > 20: # on the line, but not parallel to the line, still some correction needed
                         if angle > 50:
                             correction = 25
                         else:
