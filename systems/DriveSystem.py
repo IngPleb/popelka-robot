@@ -37,7 +37,7 @@ class DriveSystem:
         self.gyro_correction = False
         self.gyro_correction_general = self.gyro_correction
         self.counter = 0
-        self.base_counter_barrier = 8
+        self.base_counter_barrier = 10
         self.counter_barrier = self.base_counter_barrier
         self.counter_positive = True
         self.correction_flag = True
