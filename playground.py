@@ -41,9 +41,8 @@ def main():
 
     while True:
          if drive_system.simple_ultra_sonic.is_object_in_front():
-            # Handle ball detection logic
-            time.sleep(0.35)
             print("Ball detected, initiating grab sequence.")
+            time.sleep(0.42)
             _thread.start_new_thread(drive_system.lift_system.grab_without_return, ())
 
     
