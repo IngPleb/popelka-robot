@@ -31,13 +31,21 @@ class DriveSystem:
         self.balls_count = 0
         self.self_search_correction = 10
         self.self_search_correction_increase = 1.03
-        self.gyro_error_threshold = 10
-        self.max_correction_by_gyro = 30
+        self.gyro_error_threshold = 9
+        self.max_correction_by_gyro = 15
         self.max_correction_by_brute_search = 50
         self.gyro_correction = False
+        self.gyro_correction_general = self.gyro_correction
         self.counter = 0
+        self.base_counter_barrier = 4
+        self.counter_barrier = self.base_counter_barrier
+        self.counter_positive = True
+        self.correction_flag = True
 
-    def move_distance(self, distance_mm, use_correction=True):
+    def move_distance(self, distance_mm, use_correction=True, speed = None):
+        if speed == None: speed = self.base_speed
+        correction = 0
+        self.counter_positive = True
         print("Starting move_distance of {} mm".format(distance_mm * self.move_scale_factor))
 
         # Reset motor angles
@@ -65,34 +73,58 @@ class DriveSystem:
                 if average_angle <= target_angle:
                     # Target distance reached
                     print("Target angle reached.")
+                    self.gyro_system.reset_angle()
                     break
 
+
+            if self.simple_ultra_sonic.is_object_in_front():
+                self.correction_flag = False
+                # Handle ball detection logic
+                time.sleep(0.45)
+                print("Ball detected, initiating grab sequence.")
+                self.balls_count+=1
+                _thread.start_new_thread(self.lift_system.grab_without_return, ())
+
+                self.correction_flag = True
+
+
             # Check if we are on the line
-            if not self.light_system.is_on_line():
+            elif not self.light_system.is_on_line():
                 # We are off the line, use gyro for correction
                 angle = self.gyro_system.get_angle()
                 print("Off the line. Gyro angle: {}".format(angle))
                 # Calculate correction based on gyro angle
                 # The correction factor may need to be adjusted based on testing
-                if angle  > self.gyro_error_threshold and self.gyro_correction is True:
+                if angle > self.gyro_error_threshold and self.gyro_correction is True and self.gyro_correction_general:
                     angle = min(angle, self.max_correction_by_gyro)
-                    print("gyro search with angle"+str(angle))
-                elif angle  < -self.gyro_error_threshold and self.gyro_correction is True:
-                    angle = max(angle, -self.max_correction_by_gyro)
-                    print("gyro search with angle"+str(angle))
+                    print("gyro search with angle high"+str(angle))
+                elif angle  < -self.gyro_error_threshold and self.gyro_correction is True and self.gyro_correction_general:
+                    angle = -max(angle, self.max_correction_by_gyro)
+                    print("gyro search with angle low"+str(angle))
                 else:
-                    self.counter +=1
+                    if not self.simple_ultra_sonic.is_object_in_front():
+                        self.counter +=1
                     # angle = (self.self_search_correction)*-self.self_search_correction_increase
                     # self.self_search_correction = (self.self_search_correction)*-self.self_search_correction_incrase
                     # if angle>self.max_correction_by_brute_search: angle = self.max_correction_by_brute_search
                     # if angle<-self.max_correction_by_brute_search: angle = -self.max_correction_by_brute_search
                     # print("zigzag search with angle" + str(angle))
                     # self.gyro_correction = False
-                    if self.counter<15:
+                    if self.counter<self.counter_barrier:
                         print(self.counter)
-                        angle = 20
+                        if self.counter_positive is True:
+                            angle = 20
+                            print("zigzag pozitivni")
+                        else:
+                            angle = -20
+                            print("zigzag negativni")
+                        
                     else:
-                        angle = -20
+                        print("adjusting zigzaf")
+                        self.counter_barrier*=1.5
+                        if self.counter_positive is True:
+                            self.counter_positive = False
+                        else: self.counter_positive = True
 
                     self.gyro_correction = False
 
@@ -103,10 +135,16 @@ class DriveSystem:
                     
                 correction = angle * self.correction_factor
             else:
+                # 
                 self.counter = 0
+                if self.counter_barrier>self.base_counter_barrier :
+                    self.counter_barrier =- 2
+                    if self.counter_barrier<self.base_counter_barrier: self.counter_barrier=self.base_counter_barrier
+
+                else:self.counter_positive = True
                 # We are on the line
                 correction = 0
-                if self.gyro_correction == False:
+                if self.gyro_correction == False and self.gyro_correction_general is True:
                     self.gyro_correction = True
                     self.gyro_system.reset_angle()
                     self.self_search_correction = 10
@@ -121,8 +159,9 @@ class DriveSystem:
                 angle = self.gyro_system.get_angle()
                 print("On the line. Gyro angle: {}".format(angle))
                 
-            if not use_correction:
-                correction = 0
+            if not use_correction: correction = 0
+            if self.correction_flag is False: correction = 0
+            if self.simple_ultra_sonic.is_object_in_front() is True: correction = 0
 
             # Adjust motor speeds based on correction
             left_speed = self.base_speed - correction
@@ -143,13 +182,7 @@ class DriveSystem:
 
 
             # Check for ball detection
-            if self.simple_ultra_sonic.is_object_in_front():
-                # Handle ball detection logic
-                time.sleep(0.35)
-                print("Ball detected, initiating grab sequence.")
-                self.balls_count+=1
-                _thread.start_new_thread(self.lift_system.grab_without_return, ())
-
+            
             # Small delay to prevent tight loop
             time.sleep(0.01)  # wait 10 ms
 
@@ -158,8 +191,25 @@ class DriveSystem:
         self.right_motor.stop()
         print("move_distance completed.")
 
+    def rotate_angle_gyro(self, angle_degrees, speed = None):
+        self.gyro_system.reset_angle()
+        if speed is None:
+            speed = self.base_speed + 100
+        if angle_degrees>0:
+            self.left_motor.run(-speed)
+            self.right_motor.run(speed)
+        else:
+            self.left_motor.run(speed)
+            self.right_motor.run(-speed)
+        while True:
+            if abs(self.gyro_system.get_angle()) > abs(angle_degrees):
+                self.left_motor.stop()
+                self.right_motor.stop()
+
     def rotate_angle(self, angle_degrees, speed=None):
         CORRECTION_VALUE = 3
+        self.gyro_system.reset_angle()
+        print(self.gyro_system.get_angle())
 
         if speed is None:
             speed = self.base_speed + 100
@@ -184,6 +234,7 @@ class DriveSystem:
         self.right_motor.move_to_angle(-wheel_rotation_angle, speed)
 
         # After rotation, reset gyro angle
+        print(self.gyro_system.get_angle())
         self.gyro_system.reset_angle()
         print("rotate_angle completed.")
 

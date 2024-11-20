@@ -24,7 +24,7 @@ def main():
     # Initialize needed systems with Dependency Injection
     #######################
     light_system = LightSystem(light_port, blue_threshold_on_line=7)
-    ultra_sonic_sensor = SimpleUltraSonic(ultra_sonic_port, 140)
+    ultra_sonic_sensor = SimpleUltraSonic(ultra_sonic_port, 200)
     lift_system = LiftSystem(lift_port)
     gyro_system = GyroSystem(gyro_sensor_port)
     drive_system = DriveSystem(
@@ -44,29 +44,32 @@ def main():
     #######################
     # Move along the line using combined gyro and light correction
     #we will go from the upper right, form the side of the upper block, and we will end next to the small block
-    drive_system.move_distance(630)
-    drive_system.move_distance(100, use_correction=False)
-    drive_system.move_distance(-780, use_correction=False)
+    drive_system.move_distance(560, speed=100)
+    drive_system.move_distance(100, use_correction=False,speed=100)
+    drive_system.move_distance(-775, use_correction=False,speed=300)
 
     # Rotations
-    drive_system.rotate_angle(90)
-    # drive_system.rotate_until_line(False)
-    drive_system.move_distance(270, use_correction=True)
-    drive_system.rotate_angle(-90)
+    # drive_system.rotate_angle(90)
+    # drive_system.rotate_angle_gyro(81)
+    drive_system.rotate_until_line(False)
+    drive_system.move_distance(265, use_correction=True)
+    # drive_system.rotate_angle(-90)
+    # drive_system.rotate_angle_gyro(-81)
+    drive_system.rotate_until_line(True)
 
     for i in range(2):
-        drive_system.move_distance(680)
-        drive_system.move_distance(100, use_correction=False)
-        drive_system.move_distance(-780, use_correction=False)
+        drive_system.move_distance(700)
+        drive_system.move_distance(150, use_correction=False)
+        drive_system.move_distance(-770, use_correction=False)
 
         # Rotations
-        drive_system.rotate_angle(90)
-        # drive_system.rotate_until_line(False)
-        drive_system.move_distance(270, use_correction=True)
-        drive_system.rotate_angle(-90)
-        # drive_system.rotate_until_line(True)
+        # drive_system.rotate_angle(90)
+        drive_system.rotate_until_line(False)
+        drive_system.move_distance(278, use_correction=True)
+        # drive_system.rotate_angle(-90)
+        drive_system.rotate_until_line(True)
     
-    drive_system.move_distance(680)
+    drive_system.move_distance(700)
     drive_system.move_distance(100, use_correction=False)
     drive_system.move_distance(-100, use_correction=False)
     drive_system.rotate_angle(-90)
