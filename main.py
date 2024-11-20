@@ -33,22 +33,26 @@ def main():
 
     # Routine instructions
     #######################
+    # Make the lift spin perpetually
+    lift_system.run_continuously()
+    
     # Move along the perpendicular line
     # start with no correction so we make sure we are not on the cross
-    drive_system.move_distance(40, False)
-    drive_system.move_distance(710, True)
-    # distance to collect the ball
-    drive_system.move_distance(50, False)
-    drive_system.move_distance(-900, False)
-    
-    drive_system.rotate_angle(-90)
-    drive_system.move_distance(250, False)
+    #for i in range(2):
+    drive_system.move_distance(730, True)
+    drive_system.move_distance(-720, False)
     drive_system.rotate_angle(90)
+    drive_system.move_distance(270, False)
+    drive_system.rotate_angle(-90)
+    drive_system.move_distance(770, True)
     
-    drive_system.move_distance(40, False)
-    drive_system.move_distance(710, True)
-    drive_system.move_distance(50, False)
-    drive_system.move_distance(-900, False)
+    drive_system.move_distance(-25, True)
+    drive_system.rotate_angle(-98)
+    drive_system.move_distance(-800, False)
+    
+    drive_system.move_distance(400, False)
+    drive_system.rotate_angle(180)
+    drive_system.move_distance(-400, False)
 
     # Adam's empirical data (we will use it for the adjusting the theoretical routine
     # drive_system.move_distance(750, True)  # true for turn on the correction
