@@ -50,11 +50,11 @@ def main():
         drive_system.move_distance(-820, use_correction=False)
 
         # Rotations
-        # drive_system.rotate_angle(-90)
-        drive_system.rotate_until_line(False)
+        drive_system.rotate_angle(-90)
+        # drive_system.rotate_until_line(False)
         drive_system.move_distance(270, use_correction=True)
-        # drive_system.rotate_angle(90)
-        drive_system.rotate_until_line(True)
+        drive_system.rotate_angle(90)
+        # drive_system.rotate_until_line(True)
     
     drive_system.move_distance(680)
     drive_system.move_distance(100, use_correction=False)

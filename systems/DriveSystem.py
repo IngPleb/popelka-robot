@@ -30,6 +30,10 @@ class DriveSystem:
         self.rotate_scale_factor = 3.888  # Adjust this if needed
         self.balls_count = 0
         self.self_search_correction = 10
+        self.self_search_correction_increase = 1.03
+        self.gyro_error_threshold = 10
+        self.max_correction_by_gyro = 30
+        self.max_correction_by_brute_search = 50
         self.gyro_correction = True
 
     def move_distance(self, distance_mm, use_correction=True):
@@ -69,17 +73,17 @@ class DriveSystem:
                 print("Off the line. Gyro angle: {}".format(angle))
                 # Calculate correction based on gyro angle
                 # The correction factor may need to be adjusted based on testing
-                if angle > 10:
-                    angle = min(angle, 30)
+                if angle  > self.gyro_error_threshold:
+                    angle = min(angle, self.max_correction_by_gyro)
                     print("gyro search with angle"+str(angle))
-                elif angle < -10:
-                    angle = max(angle, -30)
+                elif angle  < -self.gyro_error_threshold:
+                    angle = max(angle, -self.max_correction_by_gyro)
                     print("gyro search with angle"+str(angle))
                 else:
-                    angle = (self.self_search_correction)*-1.03
-                    self.self_search_correction = (self.self_search_correction)*-1.03
-                    if angle>100: angle = 100
-                    if angle<-100: angle = -100
+                    angle = (self.self_search_correction)*-self.self_search_correction_incerase
+                    self.self_search_correction = (self.self_search_correction)*-self.self_search_correction_incerase
+                    if angle>self.max_correction_by_brute_search: angle = self.max_correction_by_brute_search
+                    if angle<-self.max_correction_by_brute_search: angle = -self.max_correction_by_brute_search
                     print("zigzag search with angle" + str(angle))
                     self.gyro_correction = False
 
@@ -88,24 +92,18 @@ class DriveSystem:
                 correction = angle * self.correction_factor
             else:
                 # We are on the line
+                correction = 0
                 if self.gyro_correction == False:
                     self.gyro_correction = True
                     self.gyro_system.reset_angle()
                     self.self_search_correction = 10
-                    if angle > 20: # on the line, but not parallel to the line, still some correction needed
-                        if angle > 50:
-                            correction = 25
-                        else:
-                            correction = 10
-
-                    if angle > -20:
-                        if angle > -50:
-                            correction = -25
-                        else:
-                            correction = -10
-
+                    # if angle > 20: # on the line, but not parallel to the line, still some correction needed
+                    #     correction = min(angle/2,25)    # i am really woried aobut this though, might confuse the gyro
+                    #
+                    # if angle < -20:
+                    #     correction = max(angle/2,-25)
                     angle = 0
-                correction = 0
+
                 # Reset gyro angle when back on line
                 angle = self.gyro_system.get_angle()
                 print("On the line. Gyro angle: {}".format(angle))
