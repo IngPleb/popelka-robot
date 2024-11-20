@@ -35,6 +35,7 @@ class DriveSystem:
         self.max_correction_by_gyro = 30
         self.max_correction_by_brute_search = 50
         self.gyro_correction = True
+        self.counter = 0
 
     def move_distance(self, distance_mm, use_correction=True):
         print("Starting move_distance of {} mm".format(distance_mm * self.move_scale_factor))
@@ -80,17 +81,29 @@ class DriveSystem:
                     angle = max(angle, -self.max_correction_by_gyro)
                     print("gyro search with angle"+str(angle))
                 else:
-                    angle = (self.self_search_correction)*-self.self_search_correction_incerase
-                    self.self_search_correction = (self.self_search_correction)*-self.self_search_correction_incerase
-                    if angle>self.max_correction_by_brute_search: angle = self.max_correction_by_brute_search
-                    if angle<-self.max_correction_by_brute_search: angle = -self.max_correction_by_brute_search
-                    print("zigzag search with angle" + str(angle))
+                    self.counter +=1
+                    # angle = (self.self_search_correction)*-self.self_search_correction_increase
+                    # self.self_search_correction = (self.self_search_correction)*-self.self_search_correction_incrase
+                    # if angle>self.max_correction_by_brute_search: angle = self.max_correction_by_brute_search
+                    # if angle<-self.max_correction_by_brute_search: angle = -self.max_correction_by_brute_search
+                    # print("zigzag search with angle" + str(angle))
+                    # self.gyro_correction = False
+                    if self.counter<50:
+                        print(self.counter)
+                        angle = 20
+                    else:
+                        angle = -20
+
                     self.gyro_correction = False
+
+                    # angle = (self.self_search_correction)*-self.self_search_correction_increase
+
 
 
                     
                 correction = angle * self.correction_factor
             else:
+                self.counter = 0
                 # We are on the line
                 correction = 0
                 if self.gyro_correction == False:

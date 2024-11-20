@@ -44,16 +44,26 @@ def main():
     #######################
     # Move along the line using combined gyro and light correction
     #we will go from the upper right, form the side of the upper block, and we will end next to the small block
-    for i in range(3):
+    drive_system.move_distance(630)
+    drive_system.move_distance(100, use_correction=False)
+    drive_system.move_distance(-780, use_correction=False)
+
+    # Rotations
+    drive_system.rotate_angle(90)
+    # drive_system.rotate_until_line(False)
+    drive_system.move_distance(270, use_correction=True)
+    drive_system.rotate_angle(-90)
+
+    for i in range(2):
         drive_system.move_distance(680)
-        drive_system.move_distance(130, use_correction=False)
-        drive_system.move_distance(-820, use_correction=False)
+        drive_system.move_distance(100, use_correction=False)
+        drive_system.move_distance(-780, use_correction=False)
 
         # Rotations
-        drive_system.rotate_angle(-90)
+        drive_system.rotate_angle(90)
         # drive_system.rotate_until_line(False)
         drive_system.move_distance(270, use_correction=True)
-        drive_system.rotate_angle(90)
+        drive_system.rotate_angle(-90)
         # drive_system.rotate_until_line(True)
     
     drive_system.move_distance(680)
