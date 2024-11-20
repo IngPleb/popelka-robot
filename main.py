@@ -42,12 +42,18 @@ def main():
     drive_system.move_distance(-720, False)
     drive_system.rotate_angle(90)
     drive_system.move_distance(270, False)
-    drive_system.rotate_angle(-90)
+    drive_system.rotate_angle(-92)
+    drive_system.move_distance(770, True)
+    
+    drive_system.move_distance(-720, False)
+    drive_system.rotate_angle(90)
+    drive_system.move_distance(270, False)
+    drive_system.rotate_angle(-92)
     drive_system.move_distance(770, True)
     
     drive_system.move_distance(-25, True)
     drive_system.rotate_angle(-98)
-    drive_system.move_distance(-800, False)
+    drive_system.move_distance(-550, False)
     
     drive_system.move_distance(400, False)
     drive_system.rotate_angle(180)
