@@ -43,13 +43,13 @@ def main():
     drive_system.move_distance(730, True)
     drive_system.move_distance(-720, False)
     drive_system.rotate_angle(90)
-    drive_system.move_distance(275, False)
+    drive_system.move_distance(265, False)
     drive_system.rotate_angle(-94)
     drive_system.move_distance(770, True)
     
     drive_system.move_distance(-720, False)
     drive_system.rotate_angle(90)
-    drive_system.move_distance(285, False)
+    drive_system.move_distance(275, False)
     drive_system.rotate_angle(-94)
     drive_system.move_distance(770, True)
 
@@ -60,7 +60,7 @@ def main():
     drive_system.move_distance(770, True)
     
     drive_system.move_distance(-45, True)
-    drive_system.rotate_angle(-96)
+    drive_system.rotate_angle(-99)
     drive_system.move_distance(-300, False)
     for i in range(4):
         drive_system.move_distance(20, False)
